@@ -1,5 +1,18 @@
+import { Component } from 'react';
 import Searchbar from './Searchbar/Searchbar';
+import Loader from './Loader/Loader';
 
-export const App = () => {
-  return <Searchbar />;
-};
+class App extends Component {
+  state = {};
+
+  render() {
+    return (
+      <>
+        <Searchbar />
+        <Loader />
+      </>
+    );
+  }
+}
+
+export default App;
