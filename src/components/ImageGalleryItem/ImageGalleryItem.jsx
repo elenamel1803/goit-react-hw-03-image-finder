@@ -1,9 +1,9 @@
 import { GalleryItem, GalleryImg } from './ImageGalleryItem.styled';
 
-const ImageGalleryItem = () => {
+const ImageGalleryItem = ({ image, onClick }) => {
   return (
-    <GalleryItem>
-      <GalleryImg src="" alt="" />
+    <GalleryItem onClick={onClick}>
+      <GalleryImg src={image.webformatURL} alt={image.tags} />
     </GalleryItem>
   );
 };

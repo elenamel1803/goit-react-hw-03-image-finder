@@ -9,20 +9,23 @@ import {
 
 class Searchbar extends Component {
   state = {
-    value: '',
+    searchValue: '',
   };
 
   handleValueChange = ({ target }) => {
-    this.setState({ value: target.value.toLowerCase() });
-    console.log('value', this.state.value);
+    this.setState({
+      searchValue: target.value.toLowerCase().split(' ').join(' '),
+    });
+    // console.log('value', this.state.value);
   };
 
   handleSubmit = e => {
     e.preventDefault();
-    if (!this.state.value.trim()) {
+    if (!this.state.searchValue.trim()) {
       return;
     }
-    this.props.onSubmit(this.state.value);
+    this.props.onSubmit(this.state.searchValue);
+    console.log(this.state.searchValue);
     // this.setState({ value: '' });
   };
 
@@ -37,7 +40,7 @@ class Searchbar extends Component {
             autoComplete="off"
             autoFocus
             placeholder="Search images and photos"
-            value={this.state.value}
+            value={this.state.searchValue}
             onChange={this.handleValueChange}
           />
         </Form>

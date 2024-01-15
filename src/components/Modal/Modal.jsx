@@ -23,14 +23,11 @@ class Modal extends Component {
   };
 
   render() {
+    const { image } = this.props;
     return (
       <Overlay onClick={this.handleOverlayClick}>
         <ModalWrap>
-          <p>
-            Your first lightbox with just a few lines of code. Yes, it's really
-            that simple.
-          </p>
-          {/* <img src="" alt="" /> */}
+          <img src={image.largeImageURL} alt={image.tags} />
         </ModalWrap>
       </Overlay>
     );

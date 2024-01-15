@@ -1,51 +1,90 @@
 import { Component } from 'react';
 import Searchbar from './Searchbar/Searchbar';
 import ImageGallery from './ImageGallery/ImageGallery';
-import Loader from './Loader/Loader';
 import Button from './Button/Button';
+import Loader from './Loader/Loader';
 import Modal from './Modal/Modal';
 import { AppWrap } from './App.styled';
+import { fetchImagesApi } from 'services/RequestApi';
 
 class App extends Component {
   state = {
+    searchValue: '',
+    page: 1,
+    images: [],
+    selectedImage: null,
     showModal: false,
-    showLoader: false,
+    isLoading: false,
+    error: null,
+    loadMore: false,
   };
 
-  componentDidUpdate(prevprops) {}
+  componentDidUpdate(_, prevState) {
+    const { searchValue, page } = this.state;
+    // this.setState({ isLoading: true });
 
-  handleFormSubmit = value => {
-    console.log(value);
+    if (searchValue !== prevState.searchValue || page !== prevState.page) {
+      fetchImagesApi({ searchValue, page })
+        .then(({ hits, totalHits }) => {
+          if (hits.length === 0) {
+            throw new Error('Sorry, no results...');
+          }
+          this.setState(prevState => ({
+            images: [...prevState.images, ...hits],
+            // page: prevState.page + 1,
+            loadMore: page < Math.ceil(totalHits / 12),
+          }));
+        })
+        .catch(error => {
+          this.setState({ loadMore: false, error: error.message });
+          // .finally {
+          //     //   // this.setState({ showLoader: false });
+          //     // }
+        });
+    }
+  }
+
+  handleFormSubmit = searchValue => {
+    this.setState({
+      searchValue,
+      images: [],
+      page: 1,
+    });
+  };
+
+  handleImageClick = selectedImage => {
+    this.setState({ selectedImage });
+    this.toggleModal();
   };
 
   toggleModal = () => {
     this.setState(({ showModal }) => ({ showModal: !showModal }));
   };
 
-  toggleLoader = () => {
-    this.setState(({ showLoader }) => ({ showLoader: !showLoader }));
-  };
-
   // toggleState = key => {
   //   this.setState(prevState => ({ [key]: !prevState[key] }));
   // };
 
-  // onGalleryClick = e => {
-  //   const selectedImg = e.currentTarget;
-
-  //   console.log(selectedImg);
-  //   this.toggleModal(selectedImg);
-  // };
-
   render() {
-    const { showModal, showLoader } = this.state;
+    console.log(this.state);
+    const { showModal, images, isLoading, selectedImage, loadMore } =
+      this.state;
+
     return (
       <AppWrap>
         <Searchbar onSubmit={this.handleFormSubmit} />
-        <ImageGallery />
-        <Button />
-        {showLoader && <Loader />}
-        {showModal && <Modal onClose={this.toggleModal} />}
+
+        {isLoading ? (
+          <Loader />
+        ) : (
+          <ImageGallery images={images} onImageClick={this.handleImageClick} />
+        )}
+
+        {loadMore && <Button />}
+
+        {showModal && (
+          <Modal image={selectedImage} onClose={this.toggleModal} />
+        )}
         {/* {showModal && <Modal onClose={this.toggleState('showModal')} />} */}
       </AppWrap>
     );
