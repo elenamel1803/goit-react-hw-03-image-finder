@@ -36,7 +36,7 @@ class App extends Component {
           }));
         })
         .catch(error => {
-          this.setState({ loadMore: false });
+          this.setState({ loadMore: false, images: [] });
           errorMessage(error);
         })
         .finally(() => this.toggleState('isLoading'));
