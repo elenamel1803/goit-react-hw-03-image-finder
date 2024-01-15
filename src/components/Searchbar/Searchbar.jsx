@@ -1,11 +1,5 @@
 import { Component } from 'react';
-import {
-  SearchbarHeader,
-  Form,
-  Button,
-  // ButtonText,
-  InputText,
-} from './Searchbar.styled';
+import { SearchbarHeader, Form, Button, InputText } from './Searchbar.styled';
 
 class Searchbar extends Component {
   state = {
@@ -16,14 +10,10 @@ class Searchbar extends Component {
     this.setState({
       searchValue: target.value.toLowerCase().split(' ').join(' '),
     });
-    // console.log('value', this.state.value);
   };
 
   handleSubmit = e => {
     e.preventDefault();
-    if (!this.state.searchValue.trim()) {
-      return;
-    }
     this.props.onSubmit(this.state.searchValue);
     console.log(this.state.searchValue);
     // this.setState({ value: '' });
@@ -33,8 +23,7 @@ class Searchbar extends Component {
     return (
       <SearchbarHeader>
         <Form onSubmit={this.handleSubmit}>
-          <Button type="submit">{/* <ButtonText>Search</ButtonText> */}</Button>
-
+          <Button type="submit" />
           <InputText
             type="text"
             autoComplete="off"

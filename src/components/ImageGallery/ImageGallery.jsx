@@ -16,5 +16,3 @@ const ImageGallery = ({ images, onImageClick }) => {
 };
 
 export default ImageGallery;
-
-// ...otherProps

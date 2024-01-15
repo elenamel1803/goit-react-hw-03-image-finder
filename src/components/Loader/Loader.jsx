@@ -5,9 +5,9 @@ const Loader = () => {
   return (
     <LoadWrap>
       <Vortex
-        visible={false}
-        height="150"
-        width="150"
+        visible={true}
+        height="80"
+        width="80"
         ariaLabel="vortex-loading"
         colors={['red', 'green', 'blue', 'yellow', 'orange', 'purple']}
       />

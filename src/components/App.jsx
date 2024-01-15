@@ -1,11 +1,12 @@
 import { Component } from 'react';
+import { fetchImagesApi } from 'services/RequestApi';
+import { errorMessage, infoEmptyMessage } from 'services/Notiflix';
 import Searchbar from './Searchbar/Searchbar';
 import ImageGallery from './ImageGallery/ImageGallery';
 import Button from './Button/Button';
 import Loader from './Loader/Loader';
 import Modal from './Modal/Modal';
 import { AppWrap } from './App.styled';
-import { fetchImagesApi } from 'services/RequestApi';
 
 class App extends Component {
   state = {
@@ -15,58 +16,62 @@ class App extends Component {
     selectedImage: null,
     showModal: false,
     isLoading: false,
-    error: null,
     loadMore: false,
   };
 
   componentDidUpdate(_, prevState) {
     const { searchValue, page } = this.state;
-    // this.setState({ isLoading: true });
 
     if (searchValue !== prevState.searchValue || page !== prevState.page) {
+      this.toggleState('isLoading');
+
       fetchImagesApi({ searchValue, page })
         .then(({ hits, totalHits }) => {
           if (hits.length === 0) {
-            throw new Error('Sorry, no results...');
+            errorMessage();
           }
           this.setState(prevState => ({
             images: [...prevState.images, ...hits],
-            // page: prevState.page + 1,
             loadMore: page < Math.ceil(totalHits / 12),
           }));
         })
         .catch(error => {
-          this.setState({ loadMore: false, error: error.message });
-          // .finally {
-          //     //   // this.setState({ showLoader: false });
-          //     // }
-        });
+          this.setState({ loadMore: false });
+          errorMessage(error);
+        })
+        .finally(() => this.toggleState('isLoading'));
     }
   }
 
   handleFormSubmit = searchValue => {
+    if (!searchValue.trim()) {
+      this.setState({
+        images: [],
+        loadMore: false,
+      });
+      return infoEmptyMessage();
+    }
     this.setState({
       searchValue,
-      images: [],
       page: 1,
+      images: [],
     });
   };
 
   handleImageClick = selectedImage => {
     this.setState({ selectedImage });
-    this.toggleModal();
+    this.toggleState('showModal');
   };
 
-  toggleModal = () => {
-    this.setState(({ showModal }) => ({ showModal: !showModal }));
+  handleLoadMoreClick = () => {
+    this.setState(prevState => ({ page: prevState.page + 1 }));
   };
 
-  // toggleState = key => {
-  //   this.setState(prevState => ({ [key]: !prevState[key] }));
-  // };
+  toggleState = key => {
+    this.setState(prevState => ({ [key]: !prevState[key] }));
+  };
 
   render() {
-    console.log(this.state);
     const { showModal, images, isLoading, selectedImage, loadMore } =
       this.state;
 
@@ -74,18 +79,17 @@ class App extends Component {
       <AppWrap>
         <Searchbar onSubmit={this.handleFormSubmit} />
 
-        {isLoading ? (
-          <Loader />
-        ) : (
-          <ImageGallery images={images} onImageClick={this.handleImageClick} />
-        )}
+        <ImageGallery images={images} onImageClick={this.handleImageClick} />
 
-        {loadMore && <Button />}
+        {(isLoading && <Loader />) ||
+          (loadMore && <Button onClick={this.handleLoadMoreClick} />)}
 
         {showModal && (
-          <Modal image={selectedImage} onClose={this.toggleModal} />
+          <Modal
+            image={selectedImage}
+            onClose={() => this.toggleState('showModal')}
+          />
         )}
-        {/* {showModal && <Modal onClose={this.toggleState('showModal')} />} */}
       </AppWrap>
     );
   }
